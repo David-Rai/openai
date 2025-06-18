@@ -1,34 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import { FaArrowUp } from "react-icons/fa";
+import { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const inputRef = useRef()
+  const [isStart, setIsStart] = useState(false)
+  const [prompts, setPrompts] = useState([])
+
+  //handle key down
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSend()
+    }
+  };
+  //sending request to the express server
+  const handleSend = async () => {
+    setIsStart(true)
+    const prompt = inputRef.current.value
+    console.log(prompt)
+    setPrompts([...prompts,prompt])
+    const res = await axios.get(`http://localhost:1111/${prompt}`)
+    console.log(res.data)
+    const data = res.data.replace(/<\/?think>/g, '').trim();
+    setPrompts([...prompts,data])
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main className='h-screen w-full  bg-[#212121] flex flex-col'>
+      {/* Chat section here */}
+      <section className='h-[80%] overflow-hidden overflow-y-auto w-full flex items-center justify-center flex-col p-[20px]'>
+        {
+          isStart ?
+            (
+              prompts.map((p,i) => {
+                return (
+                  <div key={i} className='w-full h-auto m-3 text-white'>
+                    <p className='w-full text-sm'>
+                    {p}
+                    </p>
+                  </div>
+                )
+              })
+            )
+            :
+            (
+              <h1 className='text-white text-3xl'>What on your mind?</h1>
+
+            )
+        }
+      </section>
+
+      {/* Promt here */}
+      <section className='p-[10px] h-[20%] w-full'>
+        <div className=' bg-[#303030] h-full w-full rounded-3xl flex items-center px-2 justify-between'>
+          <input type="text" placeholder='Ask anything' ref={inputRef}
+          onKeyDown={handleKeyDown}
+            className='border-none focus:outline-none w-[90%] p-3 text-gray-100'
+          />
+          <button className='h-[40px] w-[40px] bg-white flex justify-center items-center rounded-full'>
+            <FaArrowUp onClick={handleSend} />
+          </button>
+        </div>
+      </section>
+    </main>
   )
 }
 
