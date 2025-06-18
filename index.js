@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import OpenAI from 'openai'
+import fetch from 'node-fetch'
 
 dotenv.config()
 const app=express()
@@ -10,8 +11,9 @@ const app=express()
 app.use(cors())
 app.use(express.json());
 
-app.get('/',async (req, res) => {
-
+//Getting the chat reqponse from ai
+app.get('/:name',async (req, res) => {
+const content=req.params.name
   const client = new OpenAI({
     baseURL: "https://api.cerebras.ai/v1",
     apiKey:process.env.KEY,
@@ -22,7 +24,7 @@ app.get('/',async (req, res) => {
       messages: [
           {
               role: "user",
-              content: "What is the gitub",
+              content
           },
       ],
   });
@@ -38,6 +40,7 @@ res.send(decodedText);
 
   // res.json(chatCompletion.choices[0].message.content);
 });
+
 
 const PORT=process.env.PORT
 app.listen(PORT, () => {
