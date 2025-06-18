@@ -26,10 +26,17 @@ app.get('/',async (req, res) => {
           },
       ],
   });
-  
-  console.log(chatCompletion.choices[0].message);
-  
-  res.json(chatCompletion.choices[0].message.content);
+  const text=chatCompletion.choices[0].message.content
+  const decodedText = text
+  .replace(/\\u003C/g, '<')
+  .replace(/\\u003E/g, '>')
+  .replace(/\\n/g, '\n')
+  .replace(/\\"/g, '"');
+
+res.setHeader("Content-Type", "text/plain");
+res.send(decodedText);
+
+  // res.json(chatCompletion.choices[0].message.content);
 });
 
 const PORT=process.env.PORT
